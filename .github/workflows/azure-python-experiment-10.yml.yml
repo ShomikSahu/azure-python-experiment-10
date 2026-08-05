@@ -1,0 +1,38 @@
+name: Deploy Python Experiment 10 to Azure
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREPYTHONEXPERIMENT10_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZUREPYTHONEXPERIMENT10_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZUREPYTHONEXPERIMENT10_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and deploy Python container
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          dockerfilePath: Dockerfile
+          registryUrl: helloworldshomik2026.azurecr.io
+          registryUsername: ${{ secrets.AZUREPYTHONEXPERIMENT10_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.AZUREPYTHONEXPERIMENT10_REGISTRY_PASSWORD }}
+          containerAppName: azure-python-experiment-10
+          resourceGroup: Practice-RG
+          imageToBuild: helloworldshomik2026.azurecr.io/azure-python-experiment-10:${{ github.sha }}
